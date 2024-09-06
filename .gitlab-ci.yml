@@ -1,0 +1,144 @@
+variables:
+  DOCKER_DRIVER: overlay2
+  # Create the certificates inside this directory for both the server
+  # and client. The certificates used by the client will be created in
+  # /certs/client so we only need to share this directory with the
+  # volume mount in `config.toml`.
+  DOCKER_TLS_CERTDIR: "/certs"
+  ELIXIR_IMAGE: "elixir:1.17-otp-27"
+
+stages:
+  - build
+  - test
+  - lint 
+  - docker
+
+################################################################################
+# Stage Shared 
+
+.stage: &stage 
+  tags: 
+    - loomy-be 
+
+.build_stage: &build_stage
+  extends: .stage
+  stage: build 
+
+.stage_test: &stage_test 
+  extends: .stage
+  stage: test
+
+.stage_lint: &stage_lint 
+  extends: .stage
+  stage: lint
+  # only lint on the main branch
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: always
+    - when: on_success
+
+.stage_docker: &stage_docker 
+  extends: .stage
+  stage: docker
+  # do not run docker build on renovate branches
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^renovate/
+      when: never
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: never
+    - when: on_success
+
+    
+################################################################################
+# Shared 
+
+.elixir: &elixir
+  image: ${ELIXIR_IMAGE}
+  before_script:
+    - mix local.hex --force
+    - mix local.rebar --force
+    - mix deps.get --only $MIX_ENV
+
+################################################################################
+# Config 
+
+cache:
+  paths:
+    - _build
+    - deps
+
+################################################################################
+# Jobs
+
+#-------------------------------------------------------------------------------
+# Build 
+
+compile_test:elixir:
+  extends:
+    - .build_stage
+    - .elixir
+  variables:
+    MIX_ENV: "prod"
+  script:
+    - mix compile --warnings-as-errors
+
+compile_prod:elixir:
+  extends:
+    - .build_stage
+    - .elixir
+  variables:
+    MIX_ENV: "prod"
+  script:
+    - mix compile --warnings-as-errors
+
+#-------------------------------------------------------------------------------
+# Test 
+
+test:elixir:
+  extends:
+    - .stage_test
+    - .elixir 
+  variables:
+    MIX_ENV: "test"
+  script:
+    - mix test
+
+#-------------------------------------------------------------------------------
+# Lint 
+
+credo:elixir:
+  extends: 
+    - .stage_lint
+    - .elixir
+  variables:
+    MIX_ENV: "test"
+  script:
+    - mix credo --strict
+
+style:elixir:
+  extends: 
+    - .stage_lint
+    - .elixir
+  variables:
+    MIX_ENV: "test"
+  script:
+    - mix format --check-formatted
+
+#-------------------------------------------------------------------------------
+# Docker 
+
+dockerbuild:
+  extends: .stage_docker
+  services:
+    - docker:dind
+  image: docker
+  script:
+    - echo $CI_REGISTRY
+    - echo $CI_REGISTRY_USER
+    - docker login -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD} ${CI_REGISTRY};
+    - docker build --tag $CI_REGISTRY_IMAGE:latest .
+    - docker tag $CI_REGISTRY_IMAGE:latest $CI_REGISTRY_IMAGE:$CI_COMMIT_BRANCH
+    - docker tag $CI_REGISTRY_IMAGE:latest $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_BRANCH
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+    - docker push $CI_REGISTRY_IMAGE:latest
