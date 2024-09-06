@@ -8,8 +8,7 @@
 import Config
 
 config :notification_proxy,
-  generators: [timestamp_type: :utc_datetime],
-  slack_hook: "https://google.com"
+  generators: [timestamp_type: :utc_datetime]
 
 # Configures the endpoint
 config :notification_proxy, NotificationProxyWeb.Endpoint,
