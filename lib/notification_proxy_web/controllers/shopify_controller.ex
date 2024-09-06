@@ -13,5 +13,6 @@ defmodule NotificationProxyWeb.ShopifyController do
     }
 
     HTTPoison.post(@url, Jason.encode!(params), [{"Content-Type", "application/json"}])
+    text(conn, "ok")
   end
 end

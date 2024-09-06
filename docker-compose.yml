@@ -1,0 +1,6 @@
+services:
+  notification_proxy:
+    image: registry.gitlab.com/loomy-hq/notification-proxy:latest
+    restart: unless-stopped
+    environment:
+      - SLACK_HOOK=https://google.com
