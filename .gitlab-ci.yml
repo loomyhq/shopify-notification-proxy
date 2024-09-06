@@ -23,10 +23,14 @@ stages:
 .build_stage: &build_stage
   extends: .stage
   stage: build 
+  rules:
+    - when: on_success
 
 .stage_test: &stage_test 
   extends: .stage
   stage: test
+  rules:
+    - when: on_success
 
 .stage_lint: &stage_lint 
   extends: .stage
