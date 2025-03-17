@@ -7,6 +7,8 @@ defmodule NotificationProxyWeb.Router do
 
   scope "/api", NotificationProxyWeb do
     pipe_through :api
+
+    post "/shopify", ShopifyController, :create
   end
 
   # Enable LiveDashboard in development

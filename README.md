@@ -1,18 +1,17 @@
-# NotificationProxy
+# 🔔 Notification Proxy
 
-To start your Phoenix server:
+Shopify allows you to call webhooks in case of a new order. To send a message on Slack you can pay for an app or something else.
+This simple proxy does just that, for free.
 
-  * Run `mix setup` to install and setup dependencies
-  * Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
+## 🖥️ Deploy
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+Using the Docker image, set the following environment variables.
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+ - `SLACK_HOOK`
+   Set this to the Slack webhook. Something like `https://hooks.slack.com/services/XXX/XXX`.
+ - `SECRET_KEY_BASE`
+   A random string length 64.
 
-## Learn more
+## ✅ Todo
 
-  * Official website: https://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Forum: https://elixirforum.com/c/phoenix-forum
-  * Source: https://github.com/phoenixframework/phoenix
+ - The API does not verify any incoming requests, so anyone can send a request. This might lead to funny Slack messages if somebody sends a properly formed Shopify request, but that's about it for now.
