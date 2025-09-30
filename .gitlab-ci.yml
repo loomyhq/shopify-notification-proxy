@@ -5,34 +5,34 @@ variables:
   # /certs/client so we only need to share this directory with the
   # volume mount in `config.toml`.
   DOCKER_TLS_CERTDIR: "/certs"
-  ELIXIR_IMAGE: "elixir:1.17-otp-27"
+  ELIXIR_IMAGE: "elixir:1.18-otp-27"
 
 stages:
   - build
   - test
-  - lint 
+  - lint
   - docker
 
 ################################################################################
-# Stage Shared 
+# Stage Shared
 
-.stage: &stage 
-  tags: 
-    - loomy-be 
+.stage: &stage
+  tags:
+    - loomy-be
 
 .build_stage: &build_stage
   extends: .stage
-  stage: build 
+  stage: build
   rules:
     - when: on_success
 
-.stage_test: &stage_test 
+.stage_test: &stage_test
   extends: .stage
   stage: test
   rules:
     - when: on_success
 
-.stage_lint: &stage_lint 
+.stage_lint: &stage_lint
   extends: .stage
   stage: lint
   # only lint on the main branch
@@ -41,7 +41,7 @@ stages:
       when: always
     - when: on_success
 
-.stage_docker: &stage_docker 
+.stage_docker: &stage_docker
   extends: .stage
   stage: docker
   # do not run docker build on renovate branches
@@ -52,9 +52,9 @@ stages:
       when: never
     - when: on_success
 
-    
+
 ################################################################################
-# Shared 
+# Shared
 
 .elixir: &elixir
   image: ${ELIXIR_IMAGE}
@@ -64,7 +64,7 @@ stages:
     - mix deps.get --only $MIX_ENV
 
 ################################################################################
-# Config 
+# Config
 
 cache:
   paths:
@@ -75,7 +75,7 @@ cache:
 # Jobs
 
 #-------------------------------------------------------------------------------
-# Build 
+# Build
 
 compile_test:elixir:
   extends:
@@ -96,22 +96,22 @@ compile_prod:elixir:
     - mix compile --warnings-as-errors
 
 #-------------------------------------------------------------------------------
-# Test 
+# Test
 
 test:elixir:
   extends:
     - .stage_test
-    - .elixir 
+    - .elixir
   variables:
     MIX_ENV: "test"
   script:
     - mix test
 
 #-------------------------------------------------------------------------------
-# Lint 
+# Lint
 
 credo:elixir:
-  extends: 
+  extends:
     - .stage_lint
     - .elixir
   variables:
@@ -120,7 +120,7 @@ credo:elixir:
     - mix credo --strict
 
 style:elixir:
-  extends: 
+  extends:
     - .stage_lint
     - .elixir
   variables:
@@ -129,7 +129,7 @@ style:elixir:
     - mix format --check-formatted
 
 #-------------------------------------------------------------------------------
-# Docker 
+# Docker
 
 dockerbuild:
   extends: .stage_docker
