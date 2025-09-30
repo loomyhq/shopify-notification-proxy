@@ -1,0 +1,11 @@
+
+  query {
+    shopifyPaymentsAccount {
+      payouts(first: 10, reverse: true) {
+        nodes { id },
+        edges {
+          node { net { amount } , status, issuedAt}
+         }
+      }
+    }
+  }

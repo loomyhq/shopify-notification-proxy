@@ -27,7 +27,29 @@ if config_env() == :prod do
       environment variable SLACK_HOOK is missing.
       """
 
-  config :notification_proxy, :slack_hook, slack_hook
+  shopify_api_token =
+    System.get_env("SHOPIFY_API_TOKEN") ||
+      raise """
+      environment variable SHOPIFY_API_TOKEN is missing.
+      """
+
+  shopify_slack_hook =
+    System.get_env("SHOPIFY_API_KEY") ||
+      raise """
+      environment variable SHOPIFY_API_KEY is missing.
+      """
+
+  shopify_shop =
+    System.get_env("SHOPIFY_SHOP") ||
+      raise """
+      environment variable SHOPIFY_SHOP is missing.
+      """
+
+  config :notification_proxy,
+    slack_hook: slack_hook,
+    shopify_api_token: shopify_api_token,
+    shopify_api_key: shopify_slack_hook,
+    shopify_shop: shopify_shop
 
   # The secret key base is used to sign/encrypt cookies and other secrets.
   # A default value is used in config/dev.exs and config/test.exs but you
@@ -36,10 +58,10 @@ if config_env() == :prod do
   # variable instead.
   secret_key_base =
     System.get_env("SECRET_KEY_BASE") ||
-      raise """
+      raise("""
       environment variable SECRET_KEY_BASE is missing.
       You can generate one by calling: mix phx.gen.secret
-      """
+      """)
 
   host = System.get_env("PHX_HOST") || "example.com"
   port = String.to_integer(System.get_env("PORT") || "4000")

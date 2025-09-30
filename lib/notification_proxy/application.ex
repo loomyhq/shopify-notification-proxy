@@ -5,9 +5,15 @@ defmodule NotificationProxy.Application do
 
   use Application
 
+  alias NotificationProxy.PayoutPoller
+
   @impl true
   def start(_type, _args) do
+    # create an ets table for the payout logging
+    PayoutPoller.create_ets_table()
+
     children = [
+      NotificationProxy.Scheduler,
       NotificationProxyWeb.Telemetry,
       {DNSCluster,
        query: Application.get_env(:notification_proxy, :dns_cluster_query) || :ignore},

@@ -41,7 +41,9 @@ defmodule NotificationProxy.MixProject do
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
       {:httpoison, "~> 2.0"},
-      {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:shopify_graphql, "~> 2.1.0"},
+      {:quantum, "~> 3.0"}
     ]
   end
 

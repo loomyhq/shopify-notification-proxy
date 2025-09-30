@@ -1,5 +1,12 @@
 import Config
 
+config :notification_proxy,
+  slack_hook: System.get_env("SLACK_HOOK"),
+  shopify_api_token: System.get_env("SHOPIFY_API_TOKEN"),
+  shopify_api_key: System.get_env("SHOPIFY_API_KEY"),
+  shopify_shop: System.get_env("SHOPIFY_SHOP"),
+  shopify_secret_key: System.get_env("SHOPIFY_SECRET_KEY")
+
 # For development, we disable any cache and enable
 # debugging and code reloading.
 #

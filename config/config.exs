@@ -7,6 +7,12 @@
 # General application configuration
 import Config
 
+config :notification_proxy, NotificationProxy.Scheduler,
+  jobs: [
+    # Every hour
+    {"* 0 * * *", {NotificationProxy.PayoutPoller, :notify_new_payouts, []}}
+  ]
+
 config :notification_proxy,
   generators: [timestamp_type: :utc_datetime]
 
