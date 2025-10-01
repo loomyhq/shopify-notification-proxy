@@ -33,6 +33,7 @@ defmodule NotificationProxy.Queries do
               issued_at: issued_at
             }
           end)
+          |> Enum.filter(&(Map.get(&1, :status) == :paid))
 
         {:ok, payouts}
 
